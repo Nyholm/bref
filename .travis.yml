@@ -60,6 +60,7 @@ jobs:
 before_deploy:
   - cd runtime
   - DOCKER_BUILD_FLAGS="--quiet" travis_wait 90  make docker-images
+  - cd ..
 
 deploy:
   provider: script
