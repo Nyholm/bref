@@ -60,7 +60,7 @@ jobs:
 
 deploy:
   provider: script
-  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && echo $DOCKER_BUILD_FLAGS && make docker-images
+  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
   skip_cleanup: true
   env:
     DOCKER_BUILD_FLAGS: "--quiet"
