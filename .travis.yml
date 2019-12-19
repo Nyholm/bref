@@ -63,7 +63,7 @@ deploy:
   script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
   skip_cleanup: true
   on:
-    repo: nyholm/bref
+    repo: Nyholm/bref
     tags: true
     all_branches: true
     php: 7.3
