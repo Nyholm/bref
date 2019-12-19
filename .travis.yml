@@ -60,7 +60,7 @@ jobs:
 
 deploy:
   provider: script
-  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && DOCKER_BUILD_FLAGS="--quiet" make docker-images
+  script: travis_wait 30 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && DOCKER_BUILD_FLAGS="--quiet" make docker-images
   skip_cleanup: true
   on:
     repo: Nyholm/bref
