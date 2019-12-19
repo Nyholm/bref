@@ -5,7 +5,6 @@ runtimes:
 	cd runtime && make publish
 
 docker-images:
-	DOCKER_BUILD_FLAGS=${DOCKER_BUILD_FLAGS}; \
 	cd runtime && make docker-images
 	for image in \
 	  "nyholm/php-72" "nyholm/php-72-fpm" "nyholm/php-72-fpm-dev" \
