@@ -19,8 +19,7 @@ cache:
 jobs:
   include:
 
-    -   stage: 'Tests'
-        name: 'PHPUnit with PHP 7.2'
+    -   name: 'PHPUnit with PHP 7.2'
         php: 7.2
         before_script: composer install -n
         script: vendor/bin/phpunit --testsuite small
@@ -29,6 +28,8 @@ jobs:
         php: 7.3
         before_script: composer install -n
         script: vendor/bin/phpunit --testsuite small
+        env:
+          - DEPLOY_JOB=true
 
     -   name: 'PHPUnit with PHP 7.4'
         php: 7.4
@@ -56,12 +57,15 @@ jobs:
         before_script: composer install -n
         script: vendor/bin/phpstan analyse
 
-    -   stage: 'Deploy'
-        name: 'Docker images'
-        provider: script
-        script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
-        skip_cleanup: true
-        env:
-          - DOCKER_BUILD_FLAGS="--quiet"
-        on:
-          tags: true
+
+deploy:
+  provider: script
+  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
+  skip_cleanup: true
+  env:
+    - DOCKER_BUILD_FLAGS="--quiet"
+  on:
+    repo: Nyholm/bref
+    tags: true
+    all_branches: true
+    condition: $DEPLOY_JOB = true
