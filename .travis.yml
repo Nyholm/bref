@@ -50,3 +50,16 @@ jobs:
         php: 7.3
         before_script: composer install -n
         script: vendor/bin/phpstan analyse
+
+before_deploy:
+  - make package
+
+deploy:
+  provider: script
+  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
+  skip_cleanup: true
+  on:
+    repo: brefphp/bref
+    tags: true
+    all_branches: true
+    php: 7.3
