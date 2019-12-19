@@ -57,13 +57,16 @@ jobs:
         before_script: composer install -n
         script: vendor/bin/phpstan analyse
 
+before_deploy:
+  - cd runtime
+  - travis_wait 30 DOCKER_BUILD_FLAGS="--quiet" make docker-images
 
 deploy:
   provider: script
-  script: travis_wait 30 docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && DOCKER_BUILD_FLAGS="--quiet" make docker-images
+  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && DOCKER_BUILD_FLAGS="--quiet" make docker-images
   skip_cleanup: true
   on:
     repo: Nyholm/bref
-    tags: true
+    #tags: true
     all_branches: true
     condition: $DEPLOY_JOB = true
