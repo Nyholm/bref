@@ -29,7 +29,7 @@ jobs:
         before_script: composer install -n
         script: vendor/bin/phpunit --testsuite small
         env:
-          - DEPLOY_JOB=true
+          DEPLOY_JOB: true
 
     -   name: 'PHPUnit with PHP 7.4'
         php: 7.4
@@ -60,10 +60,10 @@ jobs:
 
 deploy:
   provider: script
-  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && make docker-images
+  script: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD && echo $DOCKER_BUILD_FLAGS && make docker-images
   skip_cleanup: true
   env:
-    - DOCKER_BUILD_FLAGS="--quiet"
+    DOCKER_BUILD_FLAGS: "--quiet"
   on:
     repo: Nyholm/bref
     tags: true
