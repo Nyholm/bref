@@ -68,6 +68,6 @@ deploy:
   skip_cleanup: true
   on:
     repo: Nyholm/bref
-    #tags: true
+    tags: true
     all_branches: true
     condition: $DEPLOY_JOB = true
