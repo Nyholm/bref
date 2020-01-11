@@ -3,7 +3,8 @@ name: Deploy Docker images
 on:
   push:
     tags:
-      - '*' # On all tags
+      - '0.*'
+      - '1.*'
 
 jobs:
   publish:
