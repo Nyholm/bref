@@ -13,19 +13,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
       - name: Build images
         run: |
-          echo "fobar"
+          echo $GITHUB_REF
           cd runtime
-          DOCKER_BUILD_FLAGS="--quiet" make docker-images
+          make docker-images
 
       - name: Publish
         env:
           DOCKER_USERNAME: ${{ secrets.dockerUsername }}
           DOCKER_PASSWORD: ${{ secrets.dockerPassword }}
+          DOCKER_TAG: ${{ steps.get_version.outputs.VERSION }}
         run: |
           echo $GITHUB_REF
+          echo $DOCKER_TAG
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 
-#DOCKER_BUILD_FLAGS="--quiet" make docker-images
+# make publish-docker-images
+#DOCKER_BUILD_FLAGS="--quiet" make publish-docker-images
 
