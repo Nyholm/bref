@@ -4,7 +4,11 @@
 runtimes:
 	cd runtime && make publish
 
-docker-images:
+publish-docker-images:
+	ifndef DOCKER_TAG
+	$(error DOCKER_TAG is not set)
+	endif
+
 	cd runtime && make docker-images
 	for image in \
 	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
@@ -15,7 +19,7 @@ docker-images:
 	  "bref/build-php-74" \
 	  "bref/fpm-dev-gateway"; \
 	  do \
-      docker tag $$image:latest $$image:${TRAVIS_TAG} ; \
+      docker tag $$image:latest $$image:${DOCKER_TAG} ; \
       docker push $$image ; \
   done
 

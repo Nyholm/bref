@@ -1,0 +1,35 @@
+name: Deploy Docker images
+
+on:
+  push:
+    tags:
+      - '*' # On all tags
+
+jobs:
+  publish:
+    name: Building images
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+      - name: Build images
+        run: |
+          echo $GITHUB_REF
+          cd runtime
+          make docker-images
+
+      - name: Publish
+        env:
+          DOCKER_USERNAME: ${{ secrets.dockerUsername }}
+          DOCKER_PASSWORD: ${{ secrets.dockerPassword }}
+          DOCKER_TAG: ${{ steps.get_version.outputs.VERSION }}
+        run: |
+          echo $GITHUB_REF
+          echo $DOCKER_TAG
+          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+          make publish-docker-images
