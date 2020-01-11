@@ -17,6 +17,9 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
+      - name: Docker login
+        run: echo '${{ secrets.dockerPassword }}' | docker login --username ${{ secrets.dockerUsername }} --password-stdin
+
       - name: Build images
         run: |
           echo "here is the reference:"
@@ -27,13 +30,10 @@ jobs:
 
       - name: Publish
         env:
-          DOCKER_USERNAME: ${{ secrets.dockerUsername }}
-          DOCKER_PASSWORD: ${{ secrets.dockerPassword }}
           DOCKER_TAG: ${{ steps.get_version.outputs.VERSION }}
         run: |
           echo $GITHUB_REF
           echo "here is the DOCKER_TAG:"
           echo $DOCKER_TAG
           echo "end of referene"
-          docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
 #          make publish-docker-images
