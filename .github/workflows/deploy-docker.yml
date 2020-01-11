@@ -19,9 +19,11 @@ jobs:
 
       - name: Build images
         run: |
+          echo "here is the reference:"
           echo $GITHUB_REF
+          echo "end of referene"
           cd runtime
-          make docker-images
+#          make docker-images
 
       - name: Publish
         env:
@@ -30,6 +32,8 @@ jobs:
           DOCKER_TAG: ${{ steps.get_version.outputs.VERSION }}
         run: |
           echo $GITHUB_REF
+          echo "here is the DOCKER_TAG:"
           echo $DOCKER_TAG
+          echo "end of referene"
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-          make publish-docker-images
+#          make publish-docker-images
