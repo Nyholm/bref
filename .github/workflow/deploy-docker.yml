@@ -1,6 +1,6 @@
 name: Deploy Docker images
 
-on: push
+on: [push]
 #  push:
 #    tags:
 #      - '*' # On all tags
