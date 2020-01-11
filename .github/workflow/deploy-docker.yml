@@ -15,6 +15,7 @@ jobs:
 
       - name: Build images
         run: |
+          echo "fobar"
           cd runtime
           DOCKER_BUILD_FLAGS="--quiet" make docker-images
 
