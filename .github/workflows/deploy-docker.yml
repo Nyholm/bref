@@ -1,9 +1,9 @@
 name: Deploy Docker images
 
-on: [push]
-#  push:
-#    tags:
-#      - '*' # On all tags
+on:
+  push:
+    tags:
+      - '*' # On all tags
 
 jobs:
   publish:
@@ -32,7 +32,4 @@ jobs:
           echo $GITHUB_REF
           echo $DOCKER_TAG
           docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-
-# make publish-docker-images
-#DOCKER_BUILD_FLAGS="--quiet" make publish-docker-images
-
+          make publish-docker-images

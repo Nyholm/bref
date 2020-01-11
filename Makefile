@@ -5,6 +5,10 @@ runtimes:
 	cd runtime && make publish
 
 publish-docker-images:
+	ifndef DOCKER_TAG
+	$(error DOCKER_TAG is not set)
+	endif
+
 	cd runtime && make docker-images
 	for image in \
 	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
