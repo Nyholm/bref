@@ -15,13 +15,13 @@ publish-docker-images: docker-images
 	test $(DOCKER_TAG)
 
 	for image in \
-	  "bref/php-72" "bref/php-72-fpm" "bref/php-72-fpm-dev" \
-	  "bref/php-73" "bref/php-73-fpm" "bref/php-73-fpm-dev" \
-	  "bref/php-74" "bref/php-74-fpm" "bref/php-74-fpm-dev" \
-	  "bref/build-php-72" \
-	  "bref/build-php-73" \
-	  "bref/build-php-74" \
-	  "bref/fpm-dev-gateway"; \
+	  "nyholm/php-72" "nyholm/php-72-fpm" "nyholm/php-72-fpm-dev" \
+	  "nyholm/php-73" "nyholm/php-73-fpm" "nyholm/php-73-fpm-dev" \
+	  "nyholm/php-74" "nyholm/php-74-fpm" "nyholm/php-74-fpm-dev" \
+	  "nyholm/build-php-72" \
+	  "nyholm/build-php-73" \
+	  "nyholm/build-php-74" \
+	  "nyholm/fpm-dev-gateway"; \
 	  do \
       docker tag $$image:latest $$image:${DOCKER_TAG} ; \
       docker push $$image ; \

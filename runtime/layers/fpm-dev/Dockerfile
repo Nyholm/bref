@@ -1,5 +1,5 @@
 ARG PHP_VERSION
-FROM bref/build-php-$PHP_VERSION as build_extensions
+FROM nyholm/build-php-$PHP_VERSION as build_extensions
 
 RUN pecl install xdebug
 RUN cp $(php -r "echo ini_get('extension_dir');")/xdebug.so /tmp
@@ -12,13 +12,13 @@ RUN version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")-zts \
     && cp /tmp/blackfire/blackfire-*.so /tmp/blackfire.so \
     && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
 
-FROM bref/php-${PHP_VERSION}-fpm as build_dev
+FROM nyholm/php-${PHP_VERSION}-fpm as build_dev
 
 USER root
 COPY --from=build_extensions /tmp/*.so /tmp/
 RUN cp /tmp/*.so $(php -r "echo ini_get('extension_dir');")
 
-FROM bref/php-${PHP_VERSION}-fpm
+FROM nyholm/php-${PHP_VERSION}-fpm
 
 COPY --from=build_dev  /opt /opt
 # Override the config so that PHP-FPM listens on port 9000
