@@ -102,7 +102,7 @@ final class FpmHandler extends HttpHandler
      */
     public function handleRequest(HttpRequestEvent $event, Context $context): HttpResponse
     {
-        file_put_contents('php://stderr', sprintf('URL2 RequestId: %s Path: %s'.PHP_EOL, $context->getAwsRequestId(), $event->getUri()), FILE_APPEND);
+        file_put_contents('php://stderr', sprintf('URL RequestId: %s Path: %s'.PHP_EOL, $context->getAwsRequestId(), $event->getUri()), FILE_APPEND);
         
         $request = $this->eventToFastCgiRequest($event, $context);
 
