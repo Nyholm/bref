@@ -7,6 +7,7 @@ use Bref\Event\Http\FastCgi\FastCgiCommunicationFailed;
 use Bref\Event\Http\FastCgi\FastCgiRequest;
 use Exception;
 use hollodotme\FastCGI\Client;
+use hollodotme\FastCGI\Exceptions\ReadFailedException;
 use hollodotme\FastCGI\Interfaces\ProvidesRequestData;
 use hollodotme\FastCGI\Interfaces\ProvidesResponseData;
 use hollodotme\FastCGI\SocketConnections\UnixDomainSocket;
@@ -105,30 +106,33 @@ final class FpmHandler extends HttpHandler
         file_put_contents('php://stderr', sprintf('URL RequestId: %s Path: %s'.PHP_EOL, $context->getAwsRequestId(), $event->getUri()), FILE_APPEND);
         
         $request = $this->eventToFastCgiRequest($event, $context);
+        $httpResponse = null;
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
+        } catch (ReadFailedException $e) {
+            file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
+            $httpResponse = new HttpResponse('Something strange happened. No worries, just try again.', ['Content-Type'=>'text/html'], 500);
         } catch (Throwable $e) {
-            throw new FastCgiCommunicationFailed(sprintf(
-                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
-                get_class($e),
-                $e->getMessage()
-            ), 0, $e);
+            file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
+            $httpResponse = new HttpResponse('Oh. We are sorry. A serious error occurred. It may work if you try again.', ['Content-Type'=>'text/html'], 500);
         }
 
-        $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
+        if ($httpResponse === null) {
+            $responseHeaders = $this->getResponseHeaders($response, $event->hasMultiHeader());
 
-        // Extract the status code
-        if (isset($responseHeaders['status'])) {
-            $status = (int) (is_array($responseHeaders['status']) ? $responseHeaders['status'][0]: $responseHeaders['status']);
-            unset($responseHeaders['status']);
+            // Extract the status code
+            if (isset($responseHeaders['status'])) {
+                $status = (int)(is_array($responseHeaders['status']) ? $responseHeaders['status'][0] : $responseHeaders['status']);
+                unset($responseHeaders['status']);
+            }
+
+            $httpResponse = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
         }
-
-        $response = new HttpResponse($response->getBody(), $responseHeaders, $status ?? 200);
 
         $this->ensureStillRunning();
 
-        return $response;
+        return $httpResponse;
     }
 
     /**
