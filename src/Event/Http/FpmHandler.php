@@ -115,7 +115,11 @@ final class FpmHandler extends HttpHandler
             $httpResponse = new HttpResponse('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"><title>A very sad error</title></head><body class="text-center"><main role="main" class="container mt-5"><div><h1>Unexpected error</h1><p class="lead">Oh no! Something unexpected happened.<br>Do not worry. Please try again.</p><p><small>(Code: 4711)</small></p></div></main></body></html>', ['Content-Type'=>'text/html'], 500);
         } catch (Throwable $e) {
             file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
-            throw new \RuntimeException('Failed to talk with PHP-FPM');
+            throw new FastCgiCommunicationFailed(sprintf(
+                'Error communicating with PHP-FPM to read the HTTP response. A root cause of this can be that the Lambda (or PHP) timed out, for example when trying to connect to a remote API or database, if this happens continuously check for those! Original exception message: %s %s',
+                get_class($e),
+                $e->getMessage()
+            ), 0, $e);
         }
 
         if ($httpResponse === null) {
