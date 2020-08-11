@@ -110,9 +110,12 @@ final class FpmHandler extends HttpHandler
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
-        } catch (Throwable $e) {
+        } catch (ReadFailedException $e) {
             file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
             $httpResponse = new HttpResponse('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"><title>A very sad error</title></head><body class="text-center"><main role="main" class="container mt-5"><div><h1>Unexpected error</h1><p class="lead">Oh no! Something unexpected happened.<br>Do not worry. Please try again.</p><p><small>(Code: 4711)</small></p></div></main></body></html>', ['Content-Type'=>'text/html'], 500);
+        } catch (Throwable $e) {
+            file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
+            throw new \RuntimeException('Failed to talk with PHP-FPM');
         }
 
         if ($httpResponse === null) {
