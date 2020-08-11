@@ -110,12 +110,9 @@ final class FpmHandler extends HttpHandler
 
         try {
             $response = $this->client->sendRequest($this->connection, $request);
-        } catch (ReadFailedException $e) {
-            file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
-            $httpResponse = new HttpResponse('Something strange happened. No worries, just try again.', ['Content-Type'=>'text/html'], 500);
         } catch (Throwable $e) {
             file_put_contents('php://stderr', sprintf('Exception: %s'.PHP_EOL, $e->getMessage()), FILE_APPEND);
-            $httpResponse = new HttpResponse('Oh. We are sorry. A serious error occurred. It may work if you try again.', ['Content-Type'=>'text/html'], 500);
+            $httpResponse = new HttpResponse('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous"><title>A very sad error</title></head><body class="text-center"><main role="main" class="container mt-5"><div><h1>Unexpected error</h1><p class="lead">Oh no! Something unexpected happened.<br>Please try again.</p></div></main></body></html>', ['Content-Type'=>'text/html'], 500);
         }
 
         if ($httpResponse === null) {
