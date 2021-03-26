@@ -25,8 +25,7 @@ if (getenv('BREF_DOWNLOAD_VENDOR')) {
     require $appRoot . '/vendor/autoload.php';
 }
 
-// Get a LambdaRuntime and disable timeout exceptions.
-$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable(-1);
+$lambdaRuntime = LambdaRuntime::fromEnvironmentVariable();
 
 $handlerFile = $appRoot . '/' . getenv('_HANDLER');
 if (! is_file($handlerFile)) {
