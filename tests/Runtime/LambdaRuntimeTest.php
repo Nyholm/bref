@@ -43,6 +43,8 @@ class LambdaRuntimeTest extends TestCase
     {
         Server::stop();
         ob_end_clean();
+        // Cleanup
+        putenv('BREF_FEATURE_TIMEOUT=');
     }
 
     public function test Lambda timeouts can be anticipated()
