@@ -18,17 +18,15 @@ final class Timeout
      */
     public static function enableInFpm(): void
     {
-        if (isset($_SERVER['LAMBDA_INVOCATION_CONTEXT'])) {
-            $context = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true, 512, JSON_THROW_ON_ERROR);
-            $deadlineMs = $context['deadlineMs'];
-            $remainingTimeInMillis = $deadlineMs - intval(microtime(true) * 1000);
-
-            self::enable($remainingTimeInMillis);
-
-            return;
+        if (! isset($_SERVER['LAMBDA_INVOCATION_CONTEXT'])) {
+            throw new \LogicException('Could not find value for bref timeout. Are we running on Lambda?');
         }
 
-        throw new \LogicException('Could not find value for bref timeout. Are we running on Lambda?');
+        $context = json_decode($_SERVER['LAMBDA_INVOCATION_CONTEXT'], true, 512, JSON_THROW_ON_ERROR);
+        $deadlineMs = $context['deadlineMs'];
+        $remainingTimeInMillis = $deadlineMs - intval(microtime(true) * 1000);
+
+        self::enable($remainingTimeInMillis);
     }
 
     /**
@@ -36,16 +34,22 @@ final class Timeout
      */
     public static function enable(int $remainingTimeInMillis): void
     {
+        self::init();
+
+        $remainingTimeInSeconds = (int) floor($remainingTimeInMillis / 1000);
+
         // The script will timeout 1 second before the remaining time
         // to allow some time for Bref/our app to recover and cleanup
         $margin = 1;
 
-        $remainingTimeInSeconds = (int) floor($remainingTimeInMillis / 1000);
-        self::timeoutAfter(max(1, $remainingTimeInSeconds - $margin));
+        $timeoutDelayInSeconds = max(1, $remainingTimeInSeconds - $margin);
+
+        // Trigger SIGALRM in X seconds
+        pcntl_alarm($timeoutDelayInSeconds);
     }
 
     /**
-     * Setup custom handler for SIGTERM.
+     * Setup custom handler for SIGALRM.
      */
     private static function init(): void
     {
@@ -59,20 +63,13 @@ final class Timeout
         }
 
         pcntl_async_signals(true);
+        // Setup a handler for SIGALRM that throws an exception
+        // This will interrupt any running PHP code, including `sleep()` or code stuck waiting for I/O.
         pcntl_signal(SIGALRM, function (): void {
             throw new LambdaTimeout('Maximum AWS Lambda execution time reached');
         });
 
         self::$initialized = true;
-    }
-
-    /**
-     * Set a timer to throw an exception.
-     */
-    private static function timeoutAfter(int $seconds): void
-    {
-        self::init();
-        pcntl_alarm($seconds);
     }
 
     /**
