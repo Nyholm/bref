@@ -59,7 +59,7 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
-        $this->enableTimeout = (getenv('BREF_FEATURE_TIMEOUT') !== false);
+        $this->enableTimeout = (bool) getenv('BREF_FEATURE_TIMEOUT');
     }
 
     public function __destruct()
