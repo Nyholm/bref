@@ -48,10 +48,10 @@ final class LambdaRuntime
 
     public static function fromEnvironmentVariable(): self
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
+        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'), (bool) getenv('BREF_FEATURE_TIMEOUT'));
     }
 
-    public function __construct(string $apiUrl)
+    private function __construct(string $apiUrl, bool $enableTimeout)
     {
         if ($apiUrl === '') {
             die('At the moment lambdas can only be executed in an Lambda environment');
@@ -59,7 +59,7 @@ final class LambdaRuntime
 
         $this->apiUrl = $apiUrl;
         $this->invoker = new Invoker;
-        $this->enableTimeout = (bool) getenv('BREF_FEATURE_TIMEOUT');
+        $this->enableTimeout = $enableTimeout;
     }
 
     public function __destruct()

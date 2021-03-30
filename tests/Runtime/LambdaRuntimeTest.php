@@ -36,7 +36,9 @@ class LambdaRuntimeTest extends TestCase
     {
         ob_start();
         Server::start();
-        $this->runtime = new LambdaRuntime('localhost:8126');
+        // Mock the API with our test server
+        putenv('AWS_LAMBDA_RUNTIME_API=localhost:8126');
+        $this->runtime = LambdaRuntime::fromEnvironmentVariable();
     }
 
     protected function tearDown(): void
@@ -44,6 +46,7 @@ class LambdaRuntimeTest extends TestCase
         Server::stop();
         ob_end_clean();
         // Cleanup
+        putenv('AWS_LAMBDA_RUNTIME_API=');
         putenv('BREF_FEATURE_TIMEOUT=');
     }
 
@@ -51,7 +54,7 @@ class LambdaRuntimeTest extends TestCase
     {
         // Re-create the runtime class with timeout prevention enabled
         putenv('BREF_FEATURE_TIMEOUT=1');
-        $this->runtime = new LambdaRuntime('localhost:8126');
+        $this->runtime = LambdaRuntime::fromEnvironmentVariable();
 
         $this->givenAnEvent([]);
 
