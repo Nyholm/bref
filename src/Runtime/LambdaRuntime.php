@@ -28,7 +28,7 @@ use Psr\Http\Server\RequestHandlerInterface;
  *
  * @internal
  */
-final class LambdaRuntime
+final class LambdaRuntime implements Runtime
 {
     /** @var resource|null */
     private $handler;
@@ -42,9 +42,14 @@ final class LambdaRuntime
     /** @var Invoker */
     private $invoker;
 
-    public static function fromEnvironmentVariable(): self
+    public static function fromEnvironmentVariable(): Runtime
     {
-        return new self((string) getenv('AWS_LAMBDA_RUNTIME_API'));
+        $apiUrl = (string) getenv('AWS_LAMBDA_RUNTIME_API');
+        if ($apiUrl === 'local') {
+            return new LocalRuntime();
+        }
+        
+        return new self($apiUrl);
     }
 
     public function __construct(string $apiUrl)
